@@ -9,17 +9,17 @@ export default function Hero() {
         <div className="grid md:grid-cols-2 gap-4 md:gap-8 xl:gap-20 md:items-center">
           <div>
             <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
-              CloudMaster: Elevate Your Projects
+              Zgłoś Kłusownika: Chroń Naszą Przyrodę
             </h1>
             <p className="mt-3 text-xl text-muted-foreground">
-              Simplify team collaboration with CloudMaster, the ultimate tool
-              for efficient project management.
+              Pomóż w walce z kłusownictwem! Zgłaszaj nielegalne działania i
+              ratuj dzikie zwierzęta dzięki naszej platformie.
             </p>
             {/* Buttons */}
             <div className="mt-7 grid gap-3 w-full sm:inline-flex">
-              <Button size={"lg"}>Get started</Button>
+              <Button size={"lg"}>Zgłoś teraz</Button>
               <Button variant={"outline"} size={"lg"}>
-                Contact sales team
+                Dowiedz się więcej
               </Button>
             </div>
           </div>
@@ -28,7 +28,7 @@ export default function Hero() {
             <img
               className="w-full rounded-md"
               src="https://placehold.co/800x700"
-              alt="Image Description"
+              alt="Opis obrazu"
             />
           </div>
           {/* End Col */}
