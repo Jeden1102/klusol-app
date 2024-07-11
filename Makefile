@@ -8,5 +8,8 @@ run-dev:
 
 dev: build-dev run-dev
 
+bash:
+	docker run -it -v $(PWD):/app --entrypoint /bin/sh nextjs-dev
+
 add-component:
 	docker run -it -v $(shell pwd):/app --entrypoint /bin/sh $(IMAGE_NAME) -c "cd /app && npx shadcn-ui@latest add $(c)"

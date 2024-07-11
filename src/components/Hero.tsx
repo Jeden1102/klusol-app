@@ -4,7 +4,7 @@ export default function Hero() {
   return (
     <>
       {/* Hero */}
-      <div className="container py-24 lg:py-32">
+      <section className="container py-24 lg:py-32">
         {/* Grid */}
         <div className="grid md:grid-cols-2 gap-4 md:gap-8 xl:gap-20 md:items-center">
           <div>
@@ -34,7 +34,7 @@ export default function Hero() {
           {/* End Col */}
         </div>
         {/* End Grid */}
-      </div>
+      </section>
       {/* End Hero */}
     </>
   );
