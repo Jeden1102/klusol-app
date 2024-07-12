@@ -39,7 +39,7 @@ function Navbar() {
         )}
       >
         {PAGES.map((page) => (
-          <Button className="w-fit" variant="ghost" asChild>
+          <Button key={page.uri} className="w-fit" variant="ghost" asChild>
             <Link href={page.uri}>{page.name}</Link>
           </Button>
         ))}
