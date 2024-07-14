@@ -1,5 +1,5 @@
 export const PAGES = [
-  { name: "Home", uri: "#home" },
-  { name: "Faq", uri: "#faq" },
-  { name: "Features", uri: "#features" },
+    { name: "Start", uri: "#start" },
+    { name: "O projekcie", uri: "#o-projekcie" },
+    { name: "Jak to działa?", uri: "#jak-to-dziala" },
 ];

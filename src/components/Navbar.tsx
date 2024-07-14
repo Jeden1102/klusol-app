@@ -44,7 +44,7 @@ function Navbar() {
           </Button>
         ))}
         <Button variant="default" className="w-fit" asChild>
-          <Link href="#report">Report</Link>
+          <Link href="#report">Zgłoś</Link>
         </Button>
       </div>
       <Button
