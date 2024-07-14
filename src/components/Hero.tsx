@@ -22,7 +22,6 @@ export default function Hero() {
                             <Button
                                 variant="outline"
                                 size="lg"
-                                className="w-fit"
                                 asChild
                             >
                                 <Link href="#o-projekcie">Dowiedz się więcej</Link>

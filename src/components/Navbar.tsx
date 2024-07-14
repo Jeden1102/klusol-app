@@ -26,7 +26,7 @@ function Navbar() {
   };
 
   return (
-    <div className="flex justify-between py-2 sm:px-32">
+    <div className="flex justify-between py-2 md:px-32">
       <Button variant="ghost" asChild>
         <Link href="#home">ZglosKlusola</Link>
       </Button>
