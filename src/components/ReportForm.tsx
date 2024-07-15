@@ -145,8 +145,8 @@ function ReportForm() {
                     </TooltipTrigger>
                     <TooltipContent>
                       <p className="max-w-72">
-                        Wpisz miejsce zdarzenia (np. 'Gdynia'), wybierz miejsce
-                        z listy, a nastepnie przemiesc marker w odpowiednia
+                        Wpisz miejsce zdarzenia (np. Gdynia), wybierz miejsce z
+                        listy, a nastepnie przemiesc marker w odpowiednia
                         pozycje.
                       </p>
                     </TooltipContent>
