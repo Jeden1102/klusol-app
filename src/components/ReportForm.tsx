@@ -24,6 +24,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import ReportFormFeatures from "./ReportFormFeatures";
+import { AdvancedMarker, CollisionBehavior } from "@vis.gl/react-google-maps";
+import { PlaceAutocomplete } from "./PlaceAutocomplete";
 
 function ReportForm() {
   const [date, setDate] = React.useState<Date>();
@@ -47,7 +49,9 @@ function ReportForm() {
               Zglos zdarzenie
             </h2>
             <div className="flex flex-col gap-3">
-              <Label htmlFor="message">Data zdarzenia</Label>
+              <Label className="font-normal" htmlFor="message">
+                Data zdarzenia
+              </Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -72,9 +76,11 @@ function ReportForm() {
               </Popover>
             </div>
             <div className="flex flex-col gap-3">
-              <Label htmlFor="message">Typ klusownictwa</Label>
+              <Label className="font-normal" htmlFor="message">
+                Typ klusownictwa
+              </Label>
               <Select>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger>
                   <SelectValue placeholder="Wybierz typ klusownictwa" />
                 </SelectTrigger>
                 <SelectContent>
@@ -84,24 +90,42 @@ function ReportForm() {
             </div>
 
             <div className="flex flex-col gap-3">
-              <Label htmlFor="message">Opis sytuacji</Label>
+              <Label className="font-normal" htmlFor="message">
+                Opis sytuacji
+              </Label>
               <Textarea
                 placeholder="Dwóch mężczyzn używało sieci.."
                 id="message"
               />
             </div>
 
-            <Label htmlFor="message">Miejsce zdarzenia</Label>
+            <Label className="font-normal" htmlFor="message">
+              Miejsce zdarzenia
+            </Label>
+
             <APIProvider
               apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string}
             >
+              <PlaceAutocomplete
+                onPlaceSelect={(place) => {
+                  console.log(place);
+                }}
+              />
               <Map
                 style={{ height: "40vh" }}
                 defaultCenter={{ lat: 22.54992, lng: 0 }}
                 defaultZoom={3}
                 gestureHandling={"greedy"}
                 disableDefaultUI={true}
-              />
+                mapId={"24c5768012c042be"}
+              >
+                <AdvancedMarker
+                  collisionBehavior={
+                    CollisionBehavior.REQUIRED_AND_HIDES_OPTIONAL
+                  }
+                  position={{ lat: 29.5, lng: -81.2 }}
+                />
+              </Map>
             </APIProvider>
 
             <Button className="w-fit mt-4" size="lg">
