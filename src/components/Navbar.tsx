@@ -19,32 +19,39 @@ function Navbar() {
 
   const toggleMenu = () => {
     setIsMenuOpened(!isMenuOpened);
-
-    const action = isMenuOpened ? "remove" : "add";
-
-    document.body.classList[action]("overflow-hidden");
   };
 
   return (
-    <div className="flex justify-between py-2 md:px-32">
+    <div className="flex justify-between py-2 sm:px-32 fixed bg-white w-full z-50 md:static">
       <Button variant="ghost" asChild>
         <Link href="#home">ZglosKlusola</Link>
       </Button>
       <div
         className={cn(
-          "gap-4 fixed transition-all -translate-y-4 left-0 opacity-0  sm:opacity-100  sm:translate-y-0 top-14 py-4 items-center shadow-lg z-50 bg-white sm:w-fit flex sm:flex-row flex-col w-full sm:bg-none sm:shadow-none sm:py-0 sm:static",
+          "gap-4 fixed transition-all -translate-y-4 left-0 opacity-0 pointer-events-none sm:pointer-events-auto sm:opacity-100  sm:translate-y-0 top-14 py-4 items-center shadow-lg z-50 bg-white sm:w-fit flex sm:flex-row flex-col w-full sm:bg-none sm:shadow-none sm:py-0 sm:static",
           {
-            "opacity-100 translate-y-0": isMenuOpened,
+            "opacity-100 translate-y-0 pointer-events-auto": isMenuOpened,
           }
         )}
       >
         {PAGES.map((page) => (
-          <Button key={page.uri} className="w-fit" variant="ghost" asChild>
+          <Button
+            className="w-fit"
+            variant="ghost"
+            asChild
+            key={page.uri}
+            onClick={() => toggleMenu()}
+          >
             <Link href={page.uri}>{page.name}</Link>
           </Button>
         ))}
-        <Button variant="default" className="w-fit" asChild>
-          <Link href="#report">Zgłoś</Link>
+        <Button
+          variant="default"
+          className="w-fit"
+          asChild
+          onClick={() => toggleMenu()}
+        >
+          <Link href="#report">Report</Link>
         </Button>
       </div>
       <Button
