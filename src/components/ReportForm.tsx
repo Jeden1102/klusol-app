@@ -33,7 +33,6 @@ import { useState, useEffect } from "react";
 
 function ReportForm() {
   const [geocoder, setGeocoder] = useState<google.maps.Geocoder | null>(null);
-  const places = useMapsLibrary("places");
   const [validationErrors, setValidationErrors] = useState({} as any);
   const [date, setDate] = React.useState<Date>();
   const [reportType, setReportType] = useState("");
@@ -109,6 +108,7 @@ function ReportForm() {
       return;
     }
 
+    setValidationErrors({});
     console.log(values);
   };
   return (
@@ -132,7 +132,7 @@ function ReportForm() {
             </h2>
             <form onSubmit={(ev) => handleFormSubmit(ev)}>
               <div className="flex flex-col">
-                <Label className="font-normal my-2" htmlFor="message">
+                <Label className="font-normal my-3" htmlFor="message">
                   Data zdarzenia
                 </Label>
                 <Popover>
@@ -140,7 +140,7 @@ function ReportForm() {
                     <Button
                       variant={"outline"}
                       className={cn(
-                        "w-[280px] justify-start text-left font-normal",
+                        "justify-start text-left font-normal",
                         !date && "text-muted-foreground",
                         validationErrors.reportDate ? "error-field" : ""
                       )}
@@ -165,7 +165,7 @@ function ReportForm() {
                 )}
               </div>
               <div className="flex flex-col">
-                <Label className="font-normal my-2" htmlFor="message">
+                <Label className="font-normal my-3" htmlFor="message">
                   Typ klusownictwa
                 </Label>
                 <Select onValueChange={(val) => setReportType(val)}>
@@ -186,7 +186,7 @@ function ReportForm() {
               </div>
 
               <div className="flex flex-col">
-                <Label className="font-normal my-2" htmlFor="message">
+                <Label className="font-normal my-3" htmlFor="message">
                   Opis sytuacji
                 </Label>
                 <Textarea
@@ -251,7 +251,10 @@ function ReportForm() {
                       position={marker}
                       draggable={true}
                       onDragEnd={(ev) => {
-                        console.log(ev);
+                        setMarker({
+                          lat: ev.latLng?.lat() as number,
+                          lng: ev.latLng?.lng() as number,
+                        });
                       }}
                     />
                   )}
