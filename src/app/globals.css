@@ -77,3 +77,8 @@
 .error-field {
   @apply bg-red-50 border border-red-100;
 }
+
+body,
+html {
+  @apply scroll-smooth;
+}
