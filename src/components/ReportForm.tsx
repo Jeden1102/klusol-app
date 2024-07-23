@@ -140,7 +140,7 @@ function ReportForm() {
                     <Button
                       variant={"outline"}
                       className={cn(
-                        "justify-start text-left font-normal",
+                        "justify-start text-left font-normal date-input",
                         !date && "text-muted-foreground",
                         validationErrors.reportDate ? "error-field" : ""
                       )}
@@ -261,7 +261,7 @@ function ReportForm() {
                 </Map>
               </APIProvider>
 
-              <Button className="w-fit mt-4" size="lg">
+              <Button className="w-fit mt-4" size="lg" type="submit">
                 Zgłoś zdarzenie
               </Button>
             </form>
