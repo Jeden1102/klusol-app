@@ -17,7 +17,9 @@ export default function Hero() {
             </p>
             {/* Buttons */}
             <div className="mt-7 grid gap-3 w-full sm:inline-flex">
-              <Button size={"lg"}>Zgłoś teraz</Button>
+              <Button size={"lg"} asChild>
+                <Link href="#zglos">Zgłoś teraz</Link>
+              </Button>
               <Button variant="outline" size="lg" asChild>
                 <Link href="#o-projekcie">Dowiedz się więcej</Link>
               </Button>

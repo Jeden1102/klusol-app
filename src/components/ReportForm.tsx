@@ -128,7 +128,7 @@ function ReportForm() {
           </div>
           <div className="lg:w-1/2 flex flex-col">
             <h2 className="font-semibold text-lg md:text-xl">
-              Zglos zdarzenie
+              Zgłoś zdarzenie
             </h2>
             <form onSubmit={(ev) => handleFormSubmit(ev)}>
               <div className="flex flex-col">

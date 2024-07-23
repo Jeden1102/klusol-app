@@ -51,7 +51,7 @@ function Navbar() {
           asChild
           onClick={() => toggleMenu()}
         >
-          <Link href="#report">Report</Link>
+          <Link href="#zglos">Zgłoś</Link>
         </Button>
       </div>
       <Button
