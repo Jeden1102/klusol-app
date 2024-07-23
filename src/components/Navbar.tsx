@@ -57,6 +57,7 @@ function Navbar() {
       <Button
         className="flex items-center justify-center sm:hidden"
         variant="ghost"
+        title="Otworz menu"
         onClick={() => toggleMenu()}
       >
         <Menu />

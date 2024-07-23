@@ -132,7 +132,7 @@ function ReportForm() {
             </h2>
             <form onSubmit={(ev) => handleFormSubmit(ev)}>
               <div className="flex flex-col">
-                <Label className="font-normal my-3" htmlFor="message">
+                <Label className="font-normal my-3" htmlFor="date">
                   Data zdarzenia
                 </Label>
                 <Popover>
@@ -165,12 +165,13 @@ function ReportForm() {
                 )}
               </div>
               <div className="flex flex-col">
-                <Label className="font-normal my-3" htmlFor="message">
+                <Label className="font-normal my-3" htmlFor="type">
                   Typ klusownictwa
                 </Label>
                 <Select onValueChange={(val) => setReportType(val)}>
                   <SelectTrigger
                     className={validationErrors.reportType ? "error-field" : ""}
+                    title="Typ klusownictwa"
                   >
                     <SelectValue placeholder="Wybierz typ klusownictwa" />
                   </SelectTrigger>
@@ -209,7 +210,7 @@ function ReportForm() {
               <div className="flex flex-col mt-2">
                 <Label
                   className="font-normal flex gap-1 flex-col"
-                  htmlFor="message"
+                  htmlFor="place"
                 >
                   Miejsce zdarzenia
                   <span className="font-light text-[12px]">

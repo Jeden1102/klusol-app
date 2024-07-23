@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import Image from "next/image";
 export default function Hero() {
   return (
     <>
@@ -27,9 +28,13 @@ export default function Hero() {
           </div>
           {/* Col */}
           <div className="relative ms-4">
-            <img
+            <Image
               className="w-full rounded-md"
-              src="/images/klus1.jpg"
+              width={600}
+              height={500}
+              loading="eager"
+              priority={true}
+              src="/images/klus1.webp"
               alt="Zdjęcie kłusownika."
             />
           </div>
