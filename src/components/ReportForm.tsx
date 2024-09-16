@@ -25,11 +25,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 
 import ReportFormFeatures from "./ReportFormFeatures";
 import { AdvancedMarker } from "@vis.gl/react-google-maps";
 import { PlaceAutocomplete } from "./PlaceAutocomplete";
 import { useState, useEffect } from "react";
+import { Input } from "./ui/input";
 
 function ReportForm() {
   const [geocoder, setGeocoder] = useState<google.maps.Geocoder | null>(null);
@@ -40,6 +42,8 @@ function ReportForm() {
   const [mapCenter, setMapCenter] = useState({ lat: 22.54992, lng: 0 });
   const [marker, setMarker] = useState({ lat: -999, lng: -999 });
   const [mapZoom, setMapZoom] = useState(3);
+  const [isReportOther, setIsReportOther] = useState(false);
+  const [otherTypeValue, setOtherTypeValue] = useState("");
 
   useEffect(() => {
     if (marker.lat !== -999) {
@@ -62,6 +66,7 @@ function ReportForm() {
   const validationSchema = z.object({
     reportDate: z.date({ message: "Pole wymagane" }),
     reportType: z.string().min(1, { message: "Pole wymagane" }),
+    reportOther: z.boolean(),
     reportDescription: z
       .string()
       .min(1, { message: "Pole wymagane" })
@@ -179,6 +184,21 @@ function ReportForm() {
                     <SelectItem value="net">Sieci w wodzie</SelectItem>
                   </SelectContent>
                 </Select>
+                <div className="flex items-center space-x-2 my-3">
+                  <Switch
+                    id="report-other"
+                    checked={isReportOther}
+                    onCheckedChange={setIsReportOther}
+                  />
+                  <Label htmlFor="report-other">Inny typ klusownictwa</Label>
+                </div>
+                {isReportOther && (
+                  <Input
+                    placeholder="Wpisz typ klusownictwa"
+                    onChange={(ev) => setOtherTypeValue(ev.target.value)}
+                  />
+                )}
+
                 {validationErrors.reportType && (
                   <span className="error">
                     {validationErrors.reportType[0]}
@@ -206,7 +226,23 @@ function ReportForm() {
                   </span>
                 )}
               </div>
-
+              <div className="flex flex-col">
+                <Label className="font-normal my-3" htmlFor="type">
+                  Okreg PZW
+                </Label>
+                <Select onValueChange={(val) => setReportType(val)}>
+                  <SelectTrigger
+                    className={validationErrors.reportType ? "error-field" : ""}
+                    title="Okreg PZW"
+                  >
+                    <SelectValue placeholder="Wybierz okreg PZW" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">PZW Opole</SelectItem>
+                    <SelectItem value="2">PZW Bydgoszcz</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="flex flex-col mt-2">
                 <Label
                   className="font-normal flex gap-1 flex-col"
