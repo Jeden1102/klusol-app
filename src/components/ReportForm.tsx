@@ -7,7 +7,6 @@ import { format } from "date-fns";
 import { Calendar as CalendarIcon, Info } from "lucide-react";
 import z from "zod";
 import { getPlaceFromCoordinates } from "@/lib/utils";
-import { useMapsLibrary } from "@vis.gl/react-google-maps";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -39,11 +38,12 @@ function ReportForm() {
   const [date, setDate] = React.useState<Date>();
   const [reportType, setReportType] = useState("");
   const [reportDescription, setReportDescription] = useState("");
-  const [mapCenter, setMapCenter] = useState({ lat: 22.54992, lng: 0 });
+  const [mapCenter, setMapCenter] = useState({ lat: 52, lng: 20 });
   const [marker, setMarker] = useState({ lat: -999, lng: -999 });
-  const [mapZoom, setMapZoom] = useState(3);
+  const [mapZoom, setMapZoom] = useState(5);
   const [isReportOther, setIsReportOther] = useState(false);
   const [otherTypeValue, setOtherTypeValue] = useState("");
+  const [reportRegion, setReportRegion] = useState("");
 
   useEffect(() => {
     if (marker.lat !== -999) {
@@ -65,8 +65,7 @@ function ReportForm() {
 
   const validationSchema = z.object({
     reportDate: z.date({ message: "Pole wymagane" }),
-    reportType: z.string().min(1, { message: "Pole wymagane" }),
-    reportOther: z.boolean(),
+    reportRegion: z.string().min(1, { message: "Pole wymagane" }),
     reportDescription: z
       .string()
       .min(1, { message: "Pole wymagane" })
@@ -76,6 +75,22 @@ function ReportForm() {
         .string()
         .min(1, { message: "Wybierz adres z listy" }),
     }),
+    otherTypeValue: z
+      .string()
+      .max(1024)
+      .optional()
+      .refine(
+        () => {
+          if (isReportOther) {
+            return otherTypeValue.length > 0;
+          }
+          return true;
+        },
+        {
+          message: "Pole wymagane",
+          path: ["otherTypeValue"],
+        }
+      ),
   });
 
   const handlePlaceSelect = (place: any) => {
@@ -92,7 +107,9 @@ function ReportForm() {
     ev.preventDefault();
     const values = {
       reportDate: date,
-      reportType: reportType,
+      reportType,
+      reportRegion,
+      otherTypeValue,
       reportDescription: reportDescription,
       reportPlace: { formatted_address: "", coordinates: {} },
     };
@@ -106,9 +123,20 @@ function ReportForm() {
       };
     }
 
-    const validate = validationSchema.safeParse(values);
+    let validate = null;
+
+    if (!isReportOther) {
+      validate = validationSchema
+        .extend({
+          reportType: z.string().min(1, { message: "Pole wymagane" }),
+        })
+        .safeParse(values);
+    } else {
+      validate = validationSchema.safeParse(values);
+    }
 
     if (!validate.success) {
+      console.log(validate.error.flatten().fieldErrors);
       setValidationErrors(validate.error.flatten().fieldErrors);
       return;
     }
@@ -119,7 +147,7 @@ function ReportForm() {
   return (
     <>
       <section className="container py-24" id="zglos">
-        <div className="flex flex-col md:flex-row gap-12">
+        <div className="flex flex-col lg:flex-row gap-12">
           <div className="lg:w-1/2">
             <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0">
               Zgłoszenie kłusownika
@@ -137,7 +165,7 @@ function ReportForm() {
             </h2>
             <form onSubmit={(ev) => handleFormSubmit(ev)}>
               <div className="flex flex-col">
-                <Label className="font-normal my-3" htmlFor="date">
+                <Label className="font-normal my-4" htmlFor="date">
                   Data zdarzenia
                 </Label>
                 <Popover>
@@ -170,7 +198,7 @@ function ReportForm() {
                 )}
               </div>
               <div className="flex flex-col">
-                <Label className="font-normal my-3" htmlFor="type">
+                <Label className="font-normal my-4" htmlFor="type">
                   Typ klusownictwa
                 </Label>
                 <Select onValueChange={(val) => setReportType(val)}>
@@ -184,7 +212,7 @@ function ReportForm() {
                     <SelectItem value="net">Sieci w wodzie</SelectItem>
                   </SelectContent>
                 </Select>
-                <div className="flex items-center space-x-2 my-3">
+                <div className="flex items-center space-x-2 my-4">
                   <Switch
                     id="report-other"
                     checked={isReportOther}
@@ -204,10 +232,15 @@ function ReportForm() {
                     {validationErrors.reportType[0]}
                   </span>
                 )}
+                {validationErrors.otherTypeValue && (
+                  <span className="error">
+                    {validationErrors.otherTypeValue[0]}
+                  </span>
+                )}
               </div>
 
               <div className="flex flex-col">
-                <Label className="font-normal my-3" htmlFor="message">
+                <Label className="font-normal my-4" htmlFor="message">
                   Opis sytuacji
                 </Label>
                 <Textarea
@@ -227,12 +260,14 @@ function ReportForm() {
                 )}
               </div>
               <div className="flex flex-col">
-                <Label className="font-normal my-3" htmlFor="type">
+                <Label className="font-normal my-4" htmlFor="type">
                   Okreg PZW
                 </Label>
-                <Select onValueChange={(val) => setReportType(val)}>
+                <Select onValueChange={(val) => setReportRegion(val)}>
                   <SelectTrigger
-                    className={validationErrors.reportType ? "error-field" : ""}
+                    className={
+                      validationErrors.reportRegion ? "error-field" : ""
+                    }
                     title="Okreg PZW"
                   >
                     <SelectValue placeholder="Wybierz okreg PZW" />
@@ -242,8 +277,13 @@ function ReportForm() {
                     <SelectItem value="2">PZW Bydgoszcz</SelectItem>
                   </SelectContent>
                 </Select>
+                {validationErrors.reportRegion && (
+                  <span className="error">
+                    {validationErrors.reportRegion[0]}
+                  </span>
+                )}
               </div>
-              <div className="flex flex-col mt-2">
+              <div className="flex flex-col mt-4">
                 <Label
                   className="font-normal flex gap-1 flex-col"
                   htmlFor="place"
@@ -270,6 +310,9 @@ function ReportForm() {
                   )}
                 </div>
                 <Map
+                  onDblclick={(ev) => {
+                    console.log("teraz", ev);
+                  }}
                   style={{ height: "40vh" }}
                   defaultCenter={mapCenter}
                   defaultZoom={3}
