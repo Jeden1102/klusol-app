@@ -4,15 +4,10 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { PAGES } from "@/config/pages";
-import {
-  BookOpenIcon,
-  ChevronRightIcon,
-  MessagesSquareIcon,
-  ThumbsUpIcon,
-  Menu,
-} from "lucide-react";
+import { Menu } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { TbFishOff } from "react-icons/tb";
 
 function Navbar() {
   const [isMenuOpened, setIsMenuOpened] = useState(false);
@@ -24,8 +19,10 @@ function Navbar() {
   return (
     <div className="flex justify-between py-2 sm:px-32 fixed bg-white w-full z-50 md:static">
       <Button variant="ghost" asChild>
-        <Link href="#home" className="text-2xl font-semibold">
-        Zgłoś<span className="font-bold text-primary">Kłusownika</span>
+        <Link href="#home" className="text-xl font-semibold">
+          Zgłoś
+          <span className="font-bold text-primary">Kłusownika</span>
+          <TbFishOff className="text-3xl" />
         </Link>
       </Button>
       <div
