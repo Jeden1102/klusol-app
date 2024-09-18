@@ -24,7 +24,9 @@ function Navbar() {
   return (
     <div className="flex justify-between py-2 sm:px-32 fixed bg-white w-full z-50 md:static">
       <Button variant="ghost" asChild>
-        <Link href="#home">ZglosKlusola</Link>
+        <Link href="#home" className="text-2xl font-semibold">
+        Zgłoś<span className="font-bold text-primary">Kłusownika</span>
+        </Link>
       </Button>
       <div
         className={cn(
