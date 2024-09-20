@@ -226,7 +226,7 @@ function ReportForm({ regions, poachingTypes, createReport }: Props) {
                     <SelectContent>
                       {Array.isArray(poachingTypes) &&
                         poachingTypes.map((poachingType) => (
-                          <SelectItem value={poachingType.id.toString()}>
+                          <SelectItem key={poachingType.id} value={poachingType.id.toString()}>
                             {poachingType.label}
                           </SelectItem>
                         ))}
@@ -295,7 +295,7 @@ function ReportForm({ regions, poachingTypes, createReport }: Props) {
                     <SelectContent>
                       {Array.isArray(regions) &&
                         regions.map((region) => (
-                          <SelectItem value={region.id.toString()}>
+                          <SelectItem key={region.id} value={region.id.toString()}>
                             {region.label}
                           </SelectItem>
                         ))}
