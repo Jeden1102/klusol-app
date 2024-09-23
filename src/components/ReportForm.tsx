@@ -25,7 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-
+import { X } from "lucide-react";
 import ReportFormFeatures from "./ReportFormFeatures";
 import { AdvancedMarker } from "@vis.gl/react-google-maps";
 import { PlaceAutocomplete } from "./PlaceAutocomplete";
@@ -45,8 +45,9 @@ interface Props {
 function ReportForm({ regions, poachingTypes, createReport }: Props) {
   const [geocoder, setGeocoder] = useState<google.maps.Geocoder | null>(null);
   const [validationErrors, setValidationErrors] = useState({} as any);
-  const [date, setDate] = React.useState<Date>();
+  const [reportDate, setReportDate] = React.useState<Date>();
   const [reportType, setReportType] = useState("");
+  const [reportAddress, setReportAddress] = useState("");
   const [reportDescription, setReportDescription] = useState("");
   const [mapCenter, setMapCenter] = useState({ lat: 52, lng: 20 });
   const [marker, setMarker] = useState({ lat: -999, lng: -999 });
@@ -54,6 +55,15 @@ function ReportForm({ regions, poachingTypes, createReport }: Props) {
   const [isReportOther, setIsReportOther] = useState(false);
   const [otherTypeValue, setOtherTypeValue] = useState("");
   const [reportRegion, setReportRegion] = useState("");
+  const [reportImage, setReportImage] = useState<File | null>(null);
+
+  const MAX_FILE_SIZE = 5000000;
+  const ACCEPTED_IMAGE_TYPES = [
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "image/webp",
+  ];
 
   useEffect(() => {
     if (marker.lat !== -999) {
@@ -76,6 +86,26 @@ function ReportForm({ regions, poachingTypes, createReport }: Props) {
   const validationSchema = z.object({
     reportDate: z.date({ message: "Pole wymagane" }),
     reportRegion: z.string().min(1, { message: "Pole wymagane" }),
+    reportImage: z
+      .any()
+      .refine(() => reportImage instanceof File, {
+        message: "Zdjecie wymagane.",
+      })
+      .refine(
+        () =>
+          reportImage instanceof File &&
+          ACCEPTED_IMAGE_TYPES.includes(reportImage.type),
+        {
+          message:
+            "Pliki w formacie .jpg, .jpeg, .png and .webp sa akceptowane.",
+        }
+      )
+      .refine(
+        () => reportImage instanceof File && reportImage.size <= MAX_FILE_SIZE,
+        {
+          message: `Max. rozmiar pliku wynosi 5MB.`,
+        }
+      ),
     reportDescription: z
       .string()
       .min(1, { message: "Pole wymagane" })
@@ -102,11 +132,13 @@ function ReportForm({ regions, poachingTypes, createReport }: Props) {
       ),
   });
 
-  const handlePlaceSelect = (place: any) => {
+  const handlePlaceSelect = async (place: any) => {
     const position = {
       lat: place.geometry.location.lat(),
       lng: place.geometry.location.lng(),
     };
+    setReportAddress(place?.formatted_address);
+
     setMarker(position);
     setMapCenter(position);
     setMapZoom(13);
@@ -114,10 +146,11 @@ function ReportForm({ regions, poachingTypes, createReport }: Props) {
 
   const handleFormSubmit = async (ev: FormEvent) => {
     const values = {
-      reportDate: date,
+      reportDate,
       reportType,
       reportRegion,
       otherTypeValue,
+      reportImage,
       marker,
       reportDescription: reportDescription,
       reportPlace: { formatted_address: "", coordinates: {} },
@@ -144,6 +177,8 @@ function ReportForm({ regions, poachingTypes, createReport }: Props) {
     const place = await handleLatLngToPlace(marker);
     if (place) {
       values.reportPlace.formatted_address = place?.formatted_address;
+      setReportAddress(place?.formatted_address);
+      console.log(place, place.formatted_address);
       values.reportPlace.coordinates = {
         lat: place.geometry.location.lat(),
         lng: place.geometry.location.lng(),
@@ -153,6 +188,13 @@ function ReportForm({ regions, poachingTypes, createReport }: Props) {
     setValidationErrors({});
     console.log(values);
   };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      setReportImage(event.target.files[0]);
+    }
+  };
+
   return (
     <>
       <section className="container py-24" id="zglos">
@@ -187,23 +229,32 @@ function ReportForm({ regions, poachingTypes, createReport }: Props) {
                         variant={"outline"}
                         className={cn(
                           "justify-start text-left font-normal date-input",
-                          !date && "text-muted-foreground",
-                          validationErrors.reportDate ? "error-field" : ""
+                          !reportDate && "text-muted-foreground",
+                          validationErrors.reportreportDate ? "error-field" : ""
                         )}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {date ? format(date, "PPP") : <span>Wybierz datę</span>}
+                        {reportDate ? (
+                          format(reportDate, "PPP")
+                        ) : (
+                          <span>Wybierz datę</span>
+                        )}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0">
                       <Calendar
                         mode="single"
-                        selected={date}
-                        onSelect={setDate}
+                        selected={reportDate}
+                        onSelect={setReportDate}
                         initialFocus
                       />
                     </PopoverContent>
                   </Popover>
+                  <input
+                    type="hidden"
+                    name="reportDate"
+                    value={reportDate?.toString()}
+                  />
                   {validationErrors.reportDate && (
                     <span className="error">
                       {validationErrors.reportDate[0]}
@@ -214,7 +265,10 @@ function ReportForm({ regions, poachingTypes, createReport }: Props) {
                   <Label className="font-normal my-4" htmlFor="type">
                     Typ klusownictwa
                   </Label>
-                  <Select onValueChange={(val) => setReportType(val)}>
+                  <Select
+                    name="poachingType"
+                    onValueChange={(val) => setReportType(val)}
+                  >
                     <SelectTrigger
                       className={
                         validationErrors.reportType ? "error-field" : ""
@@ -226,7 +280,10 @@ function ReportForm({ regions, poachingTypes, createReport }: Props) {
                     <SelectContent>
                       {Array.isArray(poachingTypes) &&
                         poachingTypes.map((poachingType) => (
-                          <SelectItem key={poachingType.id} value={poachingType.id.toString()}>
+                          <SelectItem
+                            key={poachingType.id}
+                            value={poachingType.id.toString()}
+                          >
                             {poachingType.label}
                           </SelectItem>
                         ))}
@@ -272,6 +329,7 @@ function ReportForm({ regions, poachingTypes, createReport }: Props) {
                     className={
                       validationErrors.reportDescription ? "error-field" : ""
                     }
+                    name="reportDescription"
                   />
                   {validationErrors.reportDescription && (
                     <span className="error">
@@ -279,11 +337,40 @@ function ReportForm({ regions, poachingTypes, createReport }: Props) {
                     </span>
                   )}
                 </div>
+                <div className="flex flex-col my-4">
+                  <Label className="font-normal mb-4" htmlFor="file">
+                    Dodaj zdjęcie (opcjonalnie)
+                  </Label>
+                  <div className="flex flex-col gap-2">
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      name="reportImage"
+                      onChange={handleFileChange}
+                      className={
+                        validationErrors.reportImage ? "error-field" : ""
+                      }
+                    />
+                    {reportImage && (
+                      <img
+                        src={URL.createObjectURL(reportImage)}
+                        alt="Wybrane zdjęcie"
+                        className="w-32 h-32 object-cover rounded-md border"
+                      />
+                    )}
+                  </div>
+                  {validationErrors?.reportImage && (
+                    <p className="error">{validationErrors.reportImage}</p>
+                  )}
+                </div>
                 <div className="flex flex-col">
                   <Label className="font-normal my-4" htmlFor="type">
                     Okreg PZW
                   </Label>
-                  <Select onValueChange={(val) => setReportRegion(val)}>
+                  <Select
+                    name="reportRegion"
+                    onValueChange={(val) => setReportRegion(val)}
+                  >
                     <SelectTrigger
                       className={
                         validationErrors.reportRegion ? "error-field" : ""
@@ -295,7 +382,10 @@ function ReportForm({ regions, poachingTypes, createReport }: Props) {
                     <SelectContent>
                       {Array.isArray(regions) &&
                         regions.map((region) => (
-                          <SelectItem key={region.id} value={region.id.toString()}>
+                          <SelectItem
+                            key={region.id}
+                            value={region.id.toString()}
+                          >
                             {region.label}
                           </SelectItem>
                         ))}
@@ -320,6 +410,24 @@ function ReportForm({ regions, poachingTypes, createReport }: Props) {
                   </Label>
                 </div>
 
+                <input
+                  type="hidden"
+                  name="reportPlace[formatted]"
+                  value={reportAddress}
+                />
+
+                <input
+                  type="hidden"
+                  name="reportPlace[lat]"
+                  value={marker.lat.toString()}
+                />
+
+                <input
+                  type="hidden"
+                  name="reportPlace[lng]"
+                  value={marker.lng.toString()}
+                />
+
                 <APIProvider
                   apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string}
                 >
@@ -334,9 +442,6 @@ function ReportForm({ regions, poachingTypes, createReport }: Props) {
                     )}
                   </div>
                   <Map
-                    onDblclick={(ev) => {
-                      console.log("teraz", ev);
-                    }}
                     style={{ height: "40vh" }}
                     defaultCenter={mapCenter}
                     defaultZoom={3}
