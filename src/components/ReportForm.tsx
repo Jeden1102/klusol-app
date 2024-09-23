@@ -2,7 +2,7 @@
 
 import React, { FormEvent } from "react";
 import { APIProvider, Map, useMap } from "@vis.gl/react-google-maps";
-
+import { CgSpinnerAlt } from "react-icons/cg";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, Info } from "lucide-react";
 import z from "zod";
@@ -55,8 +55,7 @@ function ReportForm({ regions, poachingTypes, createReport }: Props) {
   const [otherTypeValue, setOtherTypeValue] = useState("");
   const [reportRegion, setReportRegion] = useState("");
   const [reportImage, setReportImage] = useState<File | null>(null);
-
-  const { pending } = useFormStatus();
+  const [isPending, setIsPending] = useState(false);
 
   const MAX_FILE_SIZE = 5000000;
   const ACCEPTED_IMAGE_TYPES = [
@@ -146,6 +145,7 @@ function ReportForm({ regions, poachingTypes, createReport }: Props) {
   };
 
   const handleFormSubmit = async (ev: FormEvent) => {
+    setIsPending(true);
     const values = {
       reportDate,
       reportType,
@@ -172,6 +172,7 @@ function ReportForm({ regions, poachingTypes, createReport }: Props) {
     if (!validate.success) {
       ev.preventDefault();
       setValidationErrors(validate.error.flatten().fieldErrors);
+      setIsPending(false);
       return;
     }
 
@@ -187,7 +188,7 @@ function ReportForm({ regions, poachingTypes, createReport }: Props) {
     }
 
     setValidationErrors({});
-    console.log(values);
+    setIsPending(false);
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -474,9 +475,17 @@ function ReportForm({ regions, poachingTypes, createReport }: Props) {
                   </Map>
                 </APIProvider>
 
-                <Button className="w-fit mt-4" size="lg" type="submit">
+                <Button
+                  className="w-fit mt-4 flex gap-2 items-center"
+                  size="lg"
+                  type="submit"
+                >
                   Zgłoś zdarzenie
-                  {pending && <p>test</p>}
+                  {isPending && (
+                    <span className="animate-spin text-xl">
+                      <CgSpinnerAlt />
+                    </span>
+                  )}
                 </Button>
               </form>
             )}
