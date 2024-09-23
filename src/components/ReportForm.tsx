@@ -25,13 +25,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { X } from "lucide-react";
 import ReportFormFeatures from "./ReportFormFeatures";
 import { AdvancedMarker } from "@vis.gl/react-google-maps";
 import { PlaceAutocomplete } from "./PlaceAutocomplete";
 import { useState, useEffect } from "react";
 import { Input } from "./ui/input";
-
+import { useFormState, useFormStatus } from "react-dom";
 interface ResponseObject {
   id: number;
   label: string;
@@ -45,7 +44,7 @@ interface Props {
 function ReportForm({ regions, poachingTypes, createReport }: Props) {
   const [geocoder, setGeocoder] = useState<google.maps.Geocoder | null>(null);
   const [validationErrors, setValidationErrors] = useState({} as any);
-  const [reportDate, setReportDate] = React.useState<Date>();
+  const [reportDate, setReportDate] = useState<Date>();
   const [reportType, setReportType] = useState("");
   const [reportAddress, setReportAddress] = useState("");
   const [reportDescription, setReportDescription] = useState("");
@@ -56,6 +55,8 @@ function ReportForm({ regions, poachingTypes, createReport }: Props) {
   const [otherTypeValue, setOtherTypeValue] = useState("");
   const [reportRegion, setReportRegion] = useState("");
   const [reportImage, setReportImage] = useState<File | null>(null);
+
+  const { pending } = useFormStatus();
 
   const MAX_FILE_SIZE = 5000000;
   const ACCEPTED_IMAGE_TYPES = [
@@ -250,11 +251,14 @@ function ReportForm({ regions, poachingTypes, createReport }: Props) {
                       />
                     </PopoverContent>
                   </Popover>
-                  <input
-                    type="hidden"
-                    name="reportDate"
-                    value={reportDate?.toString()}
-                  />
+                  {reportDate && (
+                    <input
+                      type="hidden"
+                      name="reportDate"
+                      value={Date.parse(reportDate.toLocaleDateString())}
+                    />
+                  )}
+
                   {validationErrors.reportDate && (
                     <span className="error">
                       {validationErrors.reportDate[0]}
@@ -472,6 +476,7 @@ function ReportForm({ regions, poachingTypes, createReport }: Props) {
 
                 <Button className="w-fit mt-4" size="lg" type="submit">
                   Zgłoś zdarzenie
+                  {pending && <p>test</p>}
                 </Button>
               </form>
             )}
