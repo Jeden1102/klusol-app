@@ -1,6 +1,6 @@
-export async function createReport(formData: FormData) {
-  "use server";
+"use server";
 
+export async function createReport(formData: FormData) {
   const URL = `${process.env.DB_HOST}/api/report`;
 
   try {

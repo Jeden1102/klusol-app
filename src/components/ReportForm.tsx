@@ -30,7 +30,8 @@ import { AdvancedMarker } from "@vis.gl/react-google-maps";
 import { PlaceAutocomplete } from "./PlaceAutocomplete";
 import { useState, useEffect } from "react";
 import { Input } from "./ui/input";
-import { useFormState, useFormStatus } from "react-dom";
+import { createReport } from "@/app/actions";
+import SubmitButton from "./SubmitButton";
 interface ResponseObject {
   id: number;
   label: string;
@@ -39,9 +40,8 @@ interface ResponseObject {
 interface Props {
   regions: ResponseObject[] | Boolean;
   poachingTypes: ResponseObject[] | Boolean;
-  createReport: (formData: FormData) => void;
 }
-function ReportForm({ regions, poachingTypes, createReport }: Props) {
+function ReportForm({ regions, poachingTypes }: Props) {
   const [geocoder, setGeocoder] = useState<google.maps.Geocoder | null>(null);
   const [validationErrors, setValidationErrors] = useState({} as any);
   const [reportDate, setReportDate] = useState<Date>();
@@ -144,7 +144,7 @@ function ReportForm({ regions, poachingTypes, createReport }: Props) {
     setMapZoom(13);
   };
 
-  const handleFormSubmit = async (ev: FormEvent) => {
+  const handleFormSubmit = async (formData: FormData) => {
     setIsPending(true);
     const values = {
       reportDate,
@@ -170,7 +170,6 @@ function ReportForm({ regions, poachingTypes, createReport }: Props) {
     }
 
     if (!validate.success) {
-      ev.preventDefault();
       setValidationErrors(validate.error.flatten().fieldErrors);
       setIsPending(false);
       return;
@@ -188,6 +187,8 @@ function ReportForm({ regions, poachingTypes, createReport }: Props) {
     }
 
     setValidationErrors({});
+    const res = await createReport(formData);
+    console.log(res);
     setIsPending(false);
   };
 
@@ -217,10 +218,7 @@ function ReportForm({ regions, poachingTypes, createReport }: Props) {
               Zgłoś zdarzenie
             </h2>
             {regions && poachingTypes && (
-              <form
-                onSubmit={(ev) => handleFormSubmit(ev)}
-                action={createReport}
-              >
+              <form action={handleFormSubmit}>
                 <div className="flex flex-col">
                   <Label className="font-normal my-4" htmlFor="date">
                     Data zdarzenia
@@ -475,18 +473,7 @@ function ReportForm({ regions, poachingTypes, createReport }: Props) {
                   </Map>
                 </APIProvider>
 
-                <Button
-                  className="w-fit mt-4 flex gap-2 items-center"
-                  size="lg"
-                  type="submit"
-                >
-                  Zgłoś zdarzenie
-                  {isPending && (
-                    <span className="animate-spin text-xl">
-                      <CgSpinnerAlt />
-                    </span>
-                  )}
-                </Button>
+                <SubmitButton />
               </form>
             )}
             {!regions && !poachingTypes && (
