@@ -37,11 +37,7 @@ export default async function Home() {
       <Features />
       <Faq />
       <Suspense fallback={<div>Wczytywanie formularza...</div>}>
-        <ReportForm
-          regions={regions}
-          poachingTypes={poachingTypes}
-          createReport={createReport}
-        />
+        <ReportForm regions={regions} poachingTypes={poachingTypes} />
       </Suspense>
     </main>
   );

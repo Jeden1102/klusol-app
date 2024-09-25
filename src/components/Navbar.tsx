@@ -19,7 +19,7 @@ function Navbar() {
   return (
     <div className="flex justify-between py-2 sm:px-4 md:px-20 lg:px-32 fixed bg-white w-full z-50 md:static">
       <Button variant="ghost" asChild>
-        <Link href="#home" className="text-xl font-semibold">
+        <Link href="#start" className="text-xl font-semibold">
           Zgłoś
           <span className="font-bold text-primary">Kłusownika</span>
           <TbFishOff className="text-3xl" />
