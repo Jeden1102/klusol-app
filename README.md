@@ -5,5 +5,6 @@ This is a project created to protect fish environment in Poland. It main feature
 To run locally, open terminal an run:
 
 ```bash
+make dev-build
 make dev
 ```
