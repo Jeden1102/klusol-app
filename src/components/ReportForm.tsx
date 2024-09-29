@@ -34,7 +34,7 @@ import { createReport } from "@/app/actions";
 import SubmitButton from "./SubmitButton";
 interface ResponseObject {
   id: number;
-  label: string;
+  name: string;
 }
 
 interface Props {
@@ -287,7 +287,7 @@ function ReportForm({ regions, poachingTypes }: Props) {
                             key={poachingType.id}
                             value={poachingType.id.toString()}
                           >
-                            {poachingType.label}
+                            {poachingType.name}
                           </SelectItem>
                         ))}
                     </SelectContent>
@@ -389,7 +389,7 @@ function ReportForm({ regions, poachingTypes }: Props) {
                             key={region.id}
                             value={region.id.toString()}
                           >
-                            {region.label}
+                            {region.name}
                           </SelectItem>
                         ))}
                     </SelectContent>
