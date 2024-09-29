@@ -269,7 +269,7 @@ function ReportForm({ regions, poachingTypes }: Props) {
                     Typ klusownictwa
                   </Label>
                   <Select
-                    name="poachingType"
+                    name="reportType"
                     onValueChange={(val) => setReportType(val)}
                   >
                     <SelectTrigger

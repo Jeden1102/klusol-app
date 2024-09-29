@@ -3,29 +3,8 @@ import Features from "@/components/Features";
 import Hero from "@/components/Hero";
 import ReportForm from "@/components/ReportForm";
 import { Suspense } from "react";
+import { getToken } from "./actions";
 
-async function getToken() {
-  try {
-    const formData = new FormData();
-    formData.append('email', process.env.DB_USER || '');
-    formData.append('password', process.env.DB_PASSWD || '');
-
-    const res = await fetch(`${process.env.DB_HOST}/login`, {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (!res.ok) {
-      throw new Error(`HTTP error! status: ${res.status}`);
-    }
-
-    const data = await res.json();
-    return data.data.token;
-  } catch (err) {
-    console.log(err);
-    return false;
-  }
-}
 
 async function getRegions() {
   try {
