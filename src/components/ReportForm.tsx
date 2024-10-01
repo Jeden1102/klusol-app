@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import ReportFormFeatures from "./ReportFormFeatures";
+import ReportFormSuccess from "./ReportFormSuccess";
 import { AdvancedMarker } from "@vis.gl/react-google-maps";
 import { PlaceAutocomplete } from "./PlaceAutocomplete";
 import { useState, useEffect } from "react";
@@ -55,7 +56,8 @@ function ReportForm({ regions, poachingTypes }: Props) {
   const [otherTypeValue, setOtherTypeValue] = useState("");
   const [reportRegion, setReportRegion] = useState("");
   const [reportImage, setReportImage] = useState<File | null>(null);
-  const [isPending, setIsPending] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isError, setIsError] = useState(false);
 
   const MAX_FILE_SIZE = 5000000;
   const ACCEPTED_IMAGE_TYPES = [
@@ -145,7 +147,6 @@ function ReportForm({ regions, poachingTypes }: Props) {
   };
 
   const handleFormSubmit = async (formData: FormData) => {
-    setIsPending(true);
     const values = {
       reportDate,
       reportType,
@@ -171,7 +172,6 @@ function ReportForm({ regions, poachingTypes }: Props) {
 
     if (!validate.success) {
       setValidationErrors(validate.error.flatten().fieldErrors);
-      setIsPending(false);
       return;
     }
 
@@ -189,7 +189,8 @@ function ReportForm({ regions, poachingTypes }: Props) {
     setValidationErrors({});
     const res = await createReport(formData);
     console.log(res);
-    setIsPending(false);
+    setIsSubmitted(true);
+    setIsError(!res.success);
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -214,271 +215,294 @@ function ReportForm({ regions, poachingTypes }: Props) {
             <ReportFormFeatures />
           </div>
           <div className="lg:w-1/2 flex flex-col">
-            <h2 className="font-semibold text-lg md:text-xl">
-              Zgłoś zdarzenie
-            </h2>
-            {regions && poachingTypes && (
-              <form action={handleFormSubmit}>
-                <div className="flex flex-col">
-                  <Label className="font-normal my-4" htmlFor="date">
-                    Data zdarzenia
-                  </Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "justify-start text-left font-normal date-input",
-                          !reportDate && "text-muted-foreground",
-                          validationErrors.reportreportDate ? "error-field" : ""
-                        )}
+            {regions &&
+              poachingTypes &&
+              (!isSubmitted || (isSubmitted && isError)) && (
+                <>
+                  <h2 className="font-semibold text-lg md:text-xl">
+                    Zgłoś zdarzenie
+                  </h2>
+                  <form action={handleFormSubmit}>
+                    <div className="flex flex-col">
+                      <Label className="font-normal my-4" htmlFor="date">
+                        Data zdarzenia
+                      </Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "justify-start text-left font-normal date-input",
+                              !reportDate && "text-muted-foreground",
+                              validationErrors.reportreportDate
+                                ? "error-field"
+                                : ""
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {reportDate ? (
+                              format(reportDate, "PPP")
+                            ) : (
+                              <span>Wybierz datę</span>
+                            )}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                          <Calendar
+                            mode="single"
+                            selected={reportDate}
+                            onSelect={setReportDate}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      {reportDate && (
+                        <input
+                          type="hidden"
+                          name="reportDate"
+                          value={Math.floor(
+                            new Date(reportDate).getTime() / 10000
+                          )}
+                        />
+                      )}
+
+                      {validationErrors.reportDate && (
+                        <span className="error">
+                          {validationErrors.reportDate[0]}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-col">
+                      <Label className="font-normal my-4" htmlFor="type">
+                        Typ klusownictwa
+                      </Label>
+                      <Select
+                        name="reportType"
+                        onValueChange={(val) => setReportType(val)}
                       >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {reportDate ? (
-                          format(reportDate, "PPP")
-                        ) : (
-                          <span>Wybierz datę</span>
-                        )}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={reportDate}
-                        onSelect={setReportDate}
-                        initialFocus
+                        <SelectTrigger
+                          className={
+                            validationErrors.reportType ? "error-field" : ""
+                          }
+                          title="Typ klusownictwa"
+                        >
+                          <SelectValue placeholder="Wybierz typ klusownictwa" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.isArray(poachingTypes) &&
+                            poachingTypes.map((poachingType) => (
+                              <SelectItem
+                                key={poachingType.id}
+                                value={poachingType.id.toString()}
+                              >
+                                {poachingType.name}
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
+                      <div className="flex items-center space-x-2 my-4">
+                        <Switch
+                          id="report-other"
+                          checked={isReportOther}
+                          onCheckedChange={setIsReportOther}
+                        />
+                        <Label htmlFor="report-other">
+                          Inny typ klusownictwa
+                        </Label>
+                      </div>
+                      {isReportOther && (
+                        <Input
+                          placeholder="Wpisz typ klusownictwa"
+                          onChange={(ev) => setOtherTypeValue(ev.target.value)}
+                        />
+                      )}
+
+                      {validationErrors.reportType && (
+                        <span className="error">
+                          {validationErrors.reportType[0]}
+                        </span>
+                      )}
+                      {validationErrors.otherTypeValue && (
+                        <span className="error">
+                          {validationErrors.otherTypeValue[0]}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col">
+                      <Label className="font-normal my-4" htmlFor="message">
+                        Opis sytuacji
+                      </Label>
+                      <Textarea
+                        placeholder="Dwóch mężczyzn używało sieci.."
+                        id="message"
+                        onKeyUp={(
+                          ev: React.KeyboardEvent<HTMLTextAreaElement>
+                        ) => setReportDescription(ev.currentTarget.value)}
+                        className={
+                          validationErrors.reportDescription
+                            ? "error-field"
+                            : ""
+                        }
+                        name="reportDescription"
                       />
-                    </PopoverContent>
-                  </Popover>
-                  {reportDate && (
+                      {validationErrors.reportDescription && (
+                        <span className="error">
+                          {validationErrors.reportDescription[0]}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-col my-4">
+                      <Label className="font-normal mb-4" htmlFor="file">
+                        Dodaj zdjęcie (opcjonalnie)
+                      </Label>
+                      <div className="flex flex-col gap-2">
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          name="reportImage"
+                          onChange={handleFileChange}
+                          className={
+                            validationErrors.reportImage ? "error-field" : ""
+                          }
+                        />
+                        {reportImage && (
+                          <img
+                            src={URL.createObjectURL(reportImage)}
+                            alt="Wybrane zdjęcie"
+                            className="w-32 h-32 object-cover rounded-md border"
+                          />
+                        )}
+                      </div>
+                      {validationErrors?.reportImage && (
+                        <p className="error">{validationErrors.reportImage}</p>
+                      )}
+                    </div>
+                    <div className="flex flex-col">
+                      <Label className="font-normal my-4" htmlFor="type">
+                        Okreg PZW
+                      </Label>
+                      <Select
+                        name="reportRegion"
+                        onValueChange={(val) => setReportRegion(val)}
+                      >
+                        <SelectTrigger
+                          className={
+                            validationErrors.reportRegion ? "error-field" : ""
+                          }
+                          title="Okreg PZW"
+                        >
+                          <SelectValue placeholder="Wybierz okreg PZW" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.isArray(regions) &&
+                            regions.map((region) => (
+                              <SelectItem
+                                key={region.id}
+                                value={region.id.toString()}
+                              >
+                                {region.name}
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
+                      {validationErrors.reportRegion && (
+                        <span className="error">
+                          {validationErrors.reportRegion[0]}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-col mt-4">
+                      <Label
+                        className="font-normal flex gap-1 flex-col"
+                        htmlFor="place"
+                      >
+                        Miejsce zdarzenia
+                        <span className="font-light text-[12px]">
+                          Wpisz miejsce zdarzenia (np. Gdynia), wybierz miejsce
+                          z listy, a nastepnie przemiesc marker w odpowiednia
+                          pozycje.
+                        </span>
+                      </Label>
+                    </div>
+
                     <input
                       type="hidden"
-                      name="reportDate"
-                      value={Math.floor(new Date(reportDate).getTime() / 10000)}
+                      name="reportPlace[formatted]"
+                      value={reportAddress}
                     />
-                  )}
 
-                  {validationErrors.reportDate && (
-                    <span className="error">
-                      {validationErrors.reportDate[0]}
-                    </span>
-                  )}
-                </div>
-                <div className="flex flex-col">
-                  <Label className="font-normal my-4" htmlFor="type">
-                    Typ klusownictwa
-                  </Label>
-                  <Select
-                    name="reportType"
-                    onValueChange={(val) => setReportType(val)}
-                  >
-                    <SelectTrigger
-                      className={
-                        validationErrors.reportType ? "error-field" : ""
+                    <input
+                      type="hidden"
+                      name="reportPlace[lat]"
+                      value={marker.lat.toString()}
+                    />
+
+                    <input
+                      type="hidden"
+                      name="reportPlace[lng]"
+                      value={marker.lng.toString()}
+                    />
+
+                    <APIProvider
+                      apiKey={
+                        process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string
                       }
-                      title="Typ klusownictwa"
                     >
-                      <SelectValue placeholder="Wybierz typ klusownictwa" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Array.isArray(poachingTypes) &&
-                        poachingTypes.map((poachingType) => (
-                          <SelectItem
-                            key={poachingType.id}
-                            value={poachingType.id.toString()}
-                          >
-                            {poachingType.name}
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
-                  <div className="flex items-center space-x-2 my-4">
-                    <Switch
-                      id="report-other"
-                      checked={isReportOther}
-                      onCheckedChange={setIsReportOther}
-                    />
-                    <Label htmlFor="report-other">Inny typ klusownictwa</Label>
-                  </div>
-                  {isReportOther && (
-                    <Input
-                      placeholder="Wpisz typ klusownictwa"
-                      onChange={(ev) => setOtherTypeValue(ev.target.value)}
-                    />
-                  )}
-
-                  {validationErrors.reportType && (
-                    <span className="error">
-                      {validationErrors.reportType[0]}
-                    </span>
-                  )}
-                  {validationErrors.otherTypeValue && (
-                    <span className="error">
-                      {validationErrors.otherTypeValue[0]}
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex flex-col">
-                  <Label className="font-normal my-4" htmlFor="message">
-                    Opis sytuacji
-                  </Label>
-                  <Textarea
-                    placeholder="Dwóch mężczyzn używało sieci.."
-                    id="message"
-                    onKeyUp={(ev: React.KeyboardEvent<HTMLTextAreaElement>) =>
-                      setReportDescription(ev.currentTarget.value)
-                    }
-                    className={
-                      validationErrors.reportDescription ? "error-field" : ""
-                    }
-                    name="reportDescription"
-                  />
-                  {validationErrors.reportDescription && (
-                    <span className="error">
-                      {validationErrors.reportDescription[0]}
-                    </span>
-                  )}
-                </div>
-                <div className="flex flex-col my-4">
-                  <Label className="font-normal mb-4" htmlFor="file">
-                    Dodaj zdjęcie (opcjonalnie)
-                  </Label>
-                  <div className="flex flex-col gap-2">
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      name="reportImage"
-                      onChange={handleFileChange}
-                      className={
-                        validationErrors.reportImage ? "error-field" : ""
-                      }
-                    />
-                    {reportImage && (
-                      <img
-                        src={URL.createObjectURL(reportImage)}
-                        alt="Wybrane zdjęcie"
-                        className="w-32 h-32 object-cover rounded-md border"
-                      />
-                    )}
-                  </div>
-                  {validationErrors?.reportImage && (
-                    <p className="error">{validationErrors.reportImage}</p>
-                  )}
-                </div>
-                <div className="flex flex-col">
-                  <Label className="font-normal my-4" htmlFor="type">
-                    Okreg PZW
-                  </Label>
-                  <Select
-                    name="reportRegion"
-                    onValueChange={(val) => setReportRegion(val)}
-                  >
-                    <SelectTrigger
-                      className={
-                        validationErrors.reportRegion ? "error-field" : ""
-                      }
-                      title="Okreg PZW"
-                    >
-                      <SelectValue placeholder="Wybierz okreg PZW" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Array.isArray(regions) &&
-                        regions.map((region) => (
-                          <SelectItem
-                            key={region.id}
-                            value={region.id.toString()}
-                          >
-                            {region.name}
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
-                  {validationErrors.reportRegion && (
-                    <span className="error">
-                      {validationErrors.reportRegion[0]}
-                    </span>
-                  )}
-                </div>
-                <div className="flex flex-col mt-4">
-                  <Label
-                    className="font-normal flex gap-1 flex-col"
-                    htmlFor="place"
-                  >
-                    Miejsce zdarzenia
-                    <span className="font-light text-[12px]">
-                      Wpisz miejsce zdarzenia (np. Gdynia), wybierz miejsce z
-                      listy, a nastepnie przemiesc marker w odpowiednia pozycje.
-                    </span>
-                  </Label>
-                </div>
-
-                <input
-                  type="hidden"
-                  name="reportPlace[formatted]"
-                  value={reportAddress}
-                />
-
-                <input
-                  type="hidden"
-                  name="reportPlace[lat]"
-                  value={marker.lat.toString()}
-                />
-
-                <input
-                  type="hidden"
-                  name="reportPlace[lng]"
-                  value={marker.lng.toString()}
-                />
-
-                <APIProvider
-                  apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string}
-                >
-                  <div className="my-2">
-                    <PlaceAutocomplete
-                      onPlaceSelect={(place) => handlePlaceSelect(place)}
-                    />
-                    {validationErrors.marker && (
-                      <span className="error">
-                        {validationErrors.marker[0]}
-                      </span>
-                    )}
-                  </div>
-                  <Map
-                    style={{ height: "40vh" }}
-                    defaultCenter={mapCenter}
-                    defaultZoom={3}
-                    center={mapCenter}
-                    zoom={mapZoom}
-                    gestureHandling={"greedy"}
-                    disableDefaultUI={true}
-                    mapId={"24c5768012c042be"}
-                    onBoundsChanged={(ev) => {
-                      setMapCenter(ev.detail.center);
-                    }}
-                    onZoomChanged={(ev) => setMapZoom(ev.detail.zoom)}
-                  >
-                    {marker.lat && (
-                      <AdvancedMarker
-                        position={marker}
-                        draggable={true}
-                        onDragEnd={(ev) => {
-                          setMarker({
-                            lat: ev.latLng?.lat() as number,
-                            lng: ev.latLng?.lng() as number,
-                          });
+                      <div className="my-2">
+                        <PlaceAutocomplete
+                          onPlaceSelect={(place) => handlePlaceSelect(place)}
+                        />
+                        {validationErrors.marker && (
+                          <span className="error">
+                            {validationErrors.marker[0]}
+                          </span>
+                        )}
+                      </div>
+                      <Map
+                        style={{ height: "40vh" }}
+                        defaultCenter={mapCenter}
+                        defaultZoom={3}
+                        center={mapCenter}
+                        zoom={mapZoom}
+                        gestureHandling={"greedy"}
+                        disableDefaultUI={true}
+                        mapId={"24c5768012c042be"}
+                        onBoundsChanged={(ev) => {
+                          setMapCenter(ev.detail.center);
                         }}
-                      />
-                    )}
-                  </Map>
-                </APIProvider>
+                        onZoomChanged={(ev) => setMapZoom(ev.detail.zoom)}
+                      >
+                        {marker.lat && (
+                          <AdvancedMarker
+                            position={marker}
+                            draggable={true}
+                            onDragEnd={(ev) => {
+                              setMarker({
+                                lat: ev.latLng?.lat() as number,
+                                lng: ev.latLng?.lng() as number,
+                              });
+                            }}
+                          />
+                        )}
+                      </Map>
+                    </APIProvider>
 
-                <SubmitButton />
-              </form>
-            )}
+                    <SubmitButton />
+                    {isError && (
+                      <p className="error mt-4">
+                        Podczas tworzenia zgloszenia wystapil blad. Sproboj
+                        ponownie pozniej.
+                      </p>
+                    )}
+                  </form>
+                </>
+              )}
             {!regions && !poachingTypes && (
               <p>Formularz zgloszeniowy obecnie niedostepny.</p>
             )}
+
+            {isSubmitted && !isError && <ReportFormSuccess />}
           </div>
         </div>
       </section>
