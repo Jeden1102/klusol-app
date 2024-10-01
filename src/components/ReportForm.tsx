@@ -1,10 +1,9 @@
 "use client";
 
-import React, { FormEvent } from "react";
-import { APIProvider, Map, useMap } from "@vis.gl/react-google-maps";
-import { CgSpinnerAlt } from "react-icons/cg";
+import React from "react";
+import { APIProvider, Map } from "@vis.gl/react-google-maps";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Info } from "lucide-react";
+import { Calendar as CalendarIcon } from "lucide-react";
 import z from "zod";
 import { getPlaceFromCoordinates } from "@/lib/utils";
 import { cn } from "@/lib/utils";
@@ -179,7 +178,6 @@ function ReportForm({ regions, poachingTypes }: Props) {
     if (place) {
       values.reportPlace.formatted_address = place?.formatted_address;
       setReportAddress(place?.formatted_address);
-      console.log(place, place.formatted_address);
       values.reportPlace.coordinates = {
         lat: place.geometry.location.lat(),
         lng: place.geometry.location.lng(),

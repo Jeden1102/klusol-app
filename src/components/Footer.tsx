@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PAGES } from "../config/pages";
+import Logo from "./Logo";
 
 export default function Component() {
   const currentYear = new Date().getFullYear();
@@ -8,7 +9,7 @@ export default function Component() {
     <div className="dark bg-gray-900 text-white py-8">
       <div className="container mx-auto px-4 md:px-6 flex flex-col md:flex-row items-center gap-12">
         <div className="flex items-center space-x-4">
-          <Link href="/">ZgłośKłusownika</Link>
+          <Logo />
         </div>
         <div className="flex items-center space-x-4">
           {PAGES.map((page) => (

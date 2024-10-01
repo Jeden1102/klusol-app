@@ -27,9 +27,8 @@ export async function createReport(formData: FormData) {
   const token = await getToken();
   if (!token) throw new Error("Unable to retrieve token");
   const URL = `${process.env.DB_HOST}/submissions`;
-  console.log("TUTAJ", token, URL);
   try {
-    const res = await fetch(URL, {
+    await fetch(URL, {
       method: "POST",
       body: formData,
       headers: {
@@ -45,5 +44,53 @@ export async function createReport(formData: FormData) {
     return {
       success: false,
     };
+  }
+}
+
+export async function getRegions() {
+  try {
+    const token = await getToken();
+    if (!token) throw new Error("Unable to retrieve token");
+
+    const res = await fetch(`${process.env.DB_HOST}/pzw-regions`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+
+    const data = await res.json();
+    return data.data;
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
+}
+
+export async function getPoachingTypes() {
+  try {
+    const token = await getToken();
+    if (!token) throw new Error("Unable to retrieve token");
+
+    const res = await fetch(`${process.env.DB_HOST}/poaching-types`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+
+    const data = await res.json();
+    return data.data;
+  } catch (err) {
+    console.log(err);
+    return false;
   }
 }
