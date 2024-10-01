@@ -3,11 +3,11 @@
 export async function getToken() {
   try {
     const formData = new FormData();
-    formData.append('email', process.env.DB_USER || '');
-    formData.append('password', process.env.DB_PASSWD || '');
+    formData.append("email", process.env.DB_USER || "");
+    formData.append("password", process.env.DB_PASSWD || "");
 
     const res = await fetch(`${process.env.DB_HOST}/login`, {
-      method: 'POST',
+      method: "POST",
       body: formData,
     });
 
@@ -25,19 +25,17 @@ export async function getToken() {
 
 export async function createReport(formData: FormData) {
   const token = await getToken();
-  if (!token) throw new Error('Unable to retrieve token');
+  if (!token) throw new Error("Unable to retrieve token");
   const URL = `${process.env.DB_HOST}/submissions`;
-  console.log("TUTAJ", token, URL)
+  console.log("TUTAJ", token, URL);
   try {
     const res = await fetch(URL, {
       method: "POST",
       body: formData,
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
     });
-
-    console.log(formData, res);
 
     return {
       success: true,

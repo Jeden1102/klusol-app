@@ -254,7 +254,7 @@ function ReportForm({ regions, poachingTypes }: Props) {
                     <input
                       type="hidden"
                       name="reportDate"
-                      value={Date.parse(reportDate.toLocaleDateString())}
+                      value={Math.floor(new Date(reportDate).getTime() / 10000)}
                     />
                   )}
 
