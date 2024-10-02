@@ -14,7 +14,7 @@ export default function ReportFormSuccess() {
   };
   return (
     <div className="flex flex-col gap-8 items-center">
-      <Lottie options={defaultOptions} height={350} width={350} />
+      <Lottie options={defaultOptions} height={300} width={350} />
       <p className="text-2xl font-bold text-center">
         Zgloszenie przeslane poprawnie!
       </p>
