@@ -358,7 +358,7 @@ function ReportForm({ regions, poachingTypes }: Props) {
                         <Input
                           type="file"
                           accept="image/*"
-                          name="reportImage"
+                          name="reportImage[]"
                           onChange={handleFileChange}
                           className={
                             validationErrors.reportImage ? "error-field" : ""
